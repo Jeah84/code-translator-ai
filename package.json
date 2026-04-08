@@ -1,0 +1,35 @@
+{
+  "name": "code-translator-ai",
+  "version": "1.0.0",
+  "description": "Translate code between any programming languages using AI",
+  "main": "dist/index.js",
+  "bin": {
+    "translate": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "code",
+    "translator",
+    "ai",
+    "programming",
+    "languages",
+    "convert"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.19.39",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.0.0",
+    "ora": "^5.4.1"
+  }
+}
