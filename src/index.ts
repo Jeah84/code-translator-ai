@@ -5,7 +5,7 @@ import ora from "ora";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { extname, basename, join, dirname } from "path";
 import { resolveLanguage, listLanguages, getOutputExtension } from "./languages";
-import { translateCode } from "./translator";
+import { translateCode, translateCodeTogether } from "./translator";
 import { validateCode } from "./validator";
 import { batchTranslate } from "./batch";
 import { getApiKey, setApiKey, checkDailyLimit, incrementDailyCount } from "./config";
@@ -28,8 +28,10 @@ program
   .option("--explain", "Add explanatory comments")
   .option("--validate", "Validate output compiles")
   .option("--api-key <key>", "API key")
+  .option("--provider <provider>", "Provider: google | openai | together")
   .action(async (input: string, opts) => {
-    const apiKey = opts.apiKey ?? getApiKey();
+    const provider: "google" | "openai" | "together" = (opts.provider ?? "together") as "google" | "openai" | "together";
+    const apiKey = opts.apiKey ?? getApiKey(provider);
     if (!apiKey) {
       console.error(chalk.red("\n✗ No API key found."));
       console.log(chalk.yellow("  Run: translate config --key YOUR_KEY\n"));
@@ -65,7 +67,8 @@ program
     const spinner = ora("Calling AI model...").start();
 
     try {
-      const result = await translateCode(
+      const translateFn = provider === "together" ? translateCodeTogether : translateCode;
+      const result = await translateFn(
         {
           sourceLanguage: sourceLang,
           targetLanguage: targetLang,
@@ -153,13 +156,15 @@ program
 
 program
   .command("config")
-  .description("Configure API keys")
-  .option("--key <apiKey>", "Set Google AI Studio API key")
-  .option("--show", "Show current config")
+  .description("Configure API keys and settings")
+  .option("--key <apiKey>", "Set API key")
+  .option("--provider <provider>", "Provider: google, openai, or together", "together")
+  .option("--openai-key <apiKey>", "Set OpenAI API key")
+  .option("--show", "Show current configuration")
   .action((opts) => {
     if (opts.key) {
-      setApiKey(opts.key);
-      console.log(chalk.green("\n✓ Google AI API key saved.\n"));
+      setApiKey(opts.key, opts.provider as "google" | "openai" | "together");
+      console.log(chalk.green(`\n✓ ${opts.provider} API key saved.\n`));
     }
     if (opts.show) {
       const key = getApiKey();

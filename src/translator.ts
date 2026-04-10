@@ -34,6 +34,10 @@ After the code, on a new line write "NOTES:" followed by any important notes. If
 After that, write "WARNINGS:" followed by any potential issues. If none write "WARNINGS: none".`;
 }
 
+function buildUserPrompt(sourceCode: string, source: Language, target: Language): string {
+  return `Translate this ${source.name} code to ${target.name}:\n\n${sourceCode}`;
+}
+
 function parseResponse(rawText: string): TranslationResult {
   const notesSplit = rawText.split(/^NOTES:/m);
   const codeSection = notesSplit[0].trim();
@@ -102,5 +106,50 @@ export async function translateCode(options: TranslationOptions, apiKey: string)
 
   const result = parseResponse(rawText);
   result.tokensUsed = data.usageMetadata?.totalTokenCount;
+  return result;
+}
+
+export async function translateCodeTogether(
+  options: TranslationOptions,
+  apiKey: string
+): Promise<TranslationResult> {
+  const { sourceLanguage, targetLanguage, sourceCode, preserveComments = true, addExplanations = false } = options;
+
+  const response = await fetch('https://api.together.xyz/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+      messages: [
+        {
+          role: 'system',
+          content: buildSystemPrompt(sourceLanguage, targetLanguage, preserveComments, addExplanations),
+        },
+        {
+          role: 'user',
+          content: buildUserPrompt(sourceCode, sourceLanguage, targetLanguage),
+        },
+      ],
+      temperature: 0.1,
+      max_tokens: 8192,
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Together.ai error ${response.status}: ${err}`);
+  }
+
+  const data = await response.json() as {
+    choices?: Array<{ message?: { content?: string } }>;
+    usage?: { total_tokens?: number };
+  };
+
+  const rawText = data.choices?.[0]?.message?.content ?? '';
+  const result = parseResponse(rawText);
+  result.tokensUsed = data.usage?.total_tokens;
   return result;
 }

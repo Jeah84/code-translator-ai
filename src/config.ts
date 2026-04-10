@@ -7,6 +7,9 @@ const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
 interface Config {
   googleApiKey?: string;
+  openaiApiKey?: string;
+  togetherApiKey?: string;
+  provider?: "google" | "openai" | "together";
   dailyCount?: number;
   dailyDate?: string;
   tier?: "free" | "pro";
@@ -26,16 +29,33 @@ function saveConfig(config: Config): void {
   writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), "utf-8");
 }
 
-export function getApiKey(): string | undefined {
-  const envKey = process.env.GOOGLE_AI_API_KEY ?? process.env.GEMINI_API_KEY;
-  if (envKey) return envKey;
+export function getApiKey(provider: "google" | "openai" | "together" = "together"): string | undefined {
+  if (provider === "together") {
+    const envKey = process.env.TOGETHER_API_KEY;
+    if (envKey) return envKey;
+    const config = loadConfig();
+    return config.togetherApiKey;
+  }
+  if (provider === "google") {
+    const envKey = process.env.GOOGLE_AI_API_KEY ?? process.env.GEMINI_API_KEY;
+    if (envKey) return envKey;
+  } else {
+    const envKey = process.env.OPENAI_API_KEY;
+    if (envKey) return envKey;
+  }
   const config = loadConfig();
-  return config.googleApiKey;
+  return provider === "google" ? config.googleApiKey : config.openaiApiKey;
 }
 
-export function setApiKey(key: string): void {
+export function setApiKey(key: string, provider: "google" | "openai" | "together" = "together"): void {
   const config = loadConfig();
-  config.googleApiKey = key;
+  if (provider === "google") {
+    config.googleApiKey = key;
+  } else if (provider === "openai") {
+    config.openaiApiKey = key;
+  } else {
+    config.togetherApiKey = key;
+  }
   saveConfig(config);
 }
 
