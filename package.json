@@ -20,7 +20,7 @@
     "languages",
     "convert"
   ],
-  "author": "",
+  "author": "Jason Rauch",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.19.39",
@@ -31,5 +31,13 @@
     "chalk": "^4.1.2",
     "commander": "^11.0.0",
     "ora": "^5.4.1"
+  },
+  "homepage": "https://github.com/Jeah84/code-translator-ai#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jeah84/code-translator-ai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jeah84/code-translator-ai/issues"
   }
 }
