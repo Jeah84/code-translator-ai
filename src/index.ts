@@ -192,4 +192,70 @@ program
     console.log(chalk.cyan("  → https://codetranslator.ai/pro\n"));
   });
 
+program
+  .command('json-format <file>')
+  .description('Format or convert a JSON/YAML file')
+  .option('--to-yaml', 'Convert JSON to YAML')
+  .option('--to-json', 'Convert YAML to JSON')
+  .option('--minify', 'Minify output')
+  .option('--indent <n>', 'Indent size', '2')
+  .action(async (file: string, opts) => {
+    const { readFileSync } = await import('fs');
+    const { formatJson, minifyJson, jsonToYaml, yamlToJson, formatYaml, minifyYaml } = await import('./tools/index.js');
+    try {
+      const input = readFileSync(file, 'utf-8');
+      const indent = parseInt(opts.indent);
+      let result = '';
+      if (opts.toYaml) result = jsonToYaml(input, indent);
+      else if (opts.toJson) result = yamlToJson(input, indent);
+      else if (opts.minify) result = file.endsWith('.yaml') || file.endsWith('.yml') ? minifyYaml(input) : minifyJson(input);
+      else result = file.endsWith('.yaml') || file.endsWith('.yml') ? formatYaml(input, indent) : formatJson(input, indent);
+      console.log(result);
+    } catch (e) {
+      console.error(chalk.red(`\n✗ ${(e as Error).message}\n`));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('regex <pattern> <input>')
+  .description('Test a regex pattern against input')
+  .option('--flags <flags>', 'Regex flags (e.g. gi)', 'g')
+  .action(async (pattern: string, input: string, opts) => {
+    const { testRegex } = await import('./tools/index.js');
+    const result = testRegex(pattern, opts.flags, input);
+    if (result.error) { console.error(chalk.red(`\n✗ Invalid regex: ${result.error}\n`)); process.exit(1); }
+    console.log(chalk.green(`\n✓ ${result.count} match${result.count !== 1 ? 'es' : ''} found`));
+    result.matches.forEach((m, i) => console.log(chalk.dim(`  [${i + 1}] "${m}"`)));
+    if (result.groups.length > 0) {
+      console.log(chalk.yellow('\n  Named groups:'));
+      result.groups.forEach(g => Object.entries(g).forEach(([k, v]) => console.log(chalk.dim(`    ${k}: "${v}"`))));
+    }
+    console.log();
+  });
+
+program
+  .command('review <file>')
+  .description('AI-powered code review')
+  .option('--language <lang>', 'Programming language', 'auto')
+  .option('--api-key <key>', 'Anthropic API key')
+  .action(async (file: string, opts) => {
+    const { readFileSync, extname } = await import('fs');
+    const { reviewCode } = await import('./tools/index.js');
+    const apiKey = opts.apiKey || process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) { console.error(chalk.red('\n✗ No API key. Use --api-key or set ANTHROPIC_API_KEY\n')); process.exit(1); }
+    const code = readFileSync(file, 'utf-8');
+    const lang = opts.language === 'auto' ? extname(file).replace('.', '') || 'unknown' : opts.language;
+    const spinner = ora('Reviewing code...').start();
+    try {
+      const review = await reviewCode(code, lang, apiKey);
+      spinner.succeed(chalk.green('Review complete!'));
+      console.log('\n' + review + '\n');
+    } catch (e) {
+      spinner.fail('Review failed');
+      console.error(chalk.red(`\n✗ ${(e as Error).message}\n`));
+      process.exit(1);
+    }
+  });
+
 program.parse(process.argv);
