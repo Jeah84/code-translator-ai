@@ -1,0 +1,10 @@
+src/
+test.ts
+test.py
+tsconfig.json
+.env
+.env.*
+*.log
+.git/
+.gitignore
+node_modules/

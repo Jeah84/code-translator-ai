@@ -4,7 +4,7 @@
   "description": "Translate code between any programming languages using AI",
   "main": "dist/index.js",
   "bin": {
-    "translate": "./dist/index.js"
+    "translate": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -36,7 +36,7 @@
   "homepage": "https://github.com/Jeah84/code-translator-ai#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Jeah84/code-translator-ai.git"
+    "url": "git+https://github.com/Jeah84/code-translator-ai.git"
   },
   "bugs": {
     "url": "https://github.com/Jeah84/code-translator-ai/issues"
