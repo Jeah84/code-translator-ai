@@ -240,7 +240,8 @@ program
   .option('--language <lang>', 'Programming language', 'auto')
   .option('--api-key <key>', 'Anthropic API key')
   .action(async (file: string, opts) => {
-    const { readFileSync, extname } = await import('fs');
+    const { readFileSync } = await import('fs');
+    const { extname } = await import('path');
     const { reviewCode } = await import('./tools/index.js');
     const apiKey = opts.apiKey || process.env.ANTHROPIC_API_KEY;
     if (!apiKey) { console.error(chalk.red('\n✗ No API key. Use --api-key or set ANTHROPIC_API_KEY\n')); process.exit(1); }
