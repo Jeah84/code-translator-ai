@@ -1,6 +1,6 @@
 {
   "name": "code-translator-ai",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Translate code between any programming languages using AI",
   "main": "dist/index.js",
   "bin": {
