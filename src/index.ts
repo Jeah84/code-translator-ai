@@ -147,6 +147,9 @@ program
       if (result.failed > 0) console.log(chalk.red(`  ✗ Failed:    ${result.failed}`));
       if (result.skipped > 0) console.log(chalk.dim(`  ⊘ Skipped:  ${result.skipped}`));
       console.log(chalk.dim(`    Total:     ${result.total}\n`));
+      result.files.filter(f => f.status === 'failed').forEach(f => {
+        console.log(chalk.red(`  ✗ ${f.input}: ${f.error || 'Unknown error'}`));
+      });
     } catch (err) {
       spinner.fail("Batch translation failed");
       console.error(chalk.red(`\n✗ ${err instanceof Error ? err.message : String(err)}\n`));

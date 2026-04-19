@@ -1,7 +1,7 @@
 import { readdirSync, statSync, readFileSync, writeFileSync, mkdirSync } from "fs";
 import { join, relative, dirname, extname } from "path";
 import { Language, getOutputExtension } from "./languages";
-import { translateCode } from "./translator";
+import { translateCode, translateCodeTogether } from "./translator";
 import { validateCode } from "./validator";
 
 export interface BatchOptions {
@@ -85,7 +85,7 @@ export async function batchTranslate(
         result.skipped++;
         continue;
       }
-      const translation = await translateCode(
+      const translation = await translateCodeTogether(
         { sourceLanguage, targetLanguage, sourceCode, preserveComments },
         apiKey
       );
