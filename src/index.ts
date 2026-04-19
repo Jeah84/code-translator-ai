@@ -241,13 +241,13 @@ program
   .command('review <file>')
   .description('AI-powered code review')
   .option('--language <lang>', 'Programming language', 'auto')
-  .option('--api-key <key>', 'Anthropic API key')
+  .option('--api-key <key>', 'Together AI API key')
   .action(async (file: string, opts) => {
     const { readFileSync } = await import('fs');
     const { extname } = await import('path');
     const { reviewCode } = await import('./tools/index.js');
-    const apiKey = opts.apiKey || process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) { console.error(chalk.red('\n✗ No API key. Use --api-key or set ANTHROPIC_API_KEY\n')); process.exit(1); }
+    const apiKey = opts.apiKey || process.env.TOGETHER_API_KEY || getApiKey('together');
+    if (!apiKey) { console.error(chalk.red('\n✗ No API key. Run: translate config --key YOUR_KEY\n')); process.exit(1); }
     const code = readFileSync(file, 'utf-8');
     const lang = opts.language === 'auto' ? extname(file).replace('.', '') || 'unknown' : opts.language;
     const spinner = ora('Reviewing code...').start();

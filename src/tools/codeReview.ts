@@ -1,18 +1,24 @@
 export async function reviewCode(code: string, language: string, apiKey: string): Promise<string> {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('https://api.together.xyz/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
+      'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
       max_tokens: 1000,
-      system: 'You are an expert code reviewer. Review for bugs, security issues, performance, and style. Format with sections: Bugs, Security, Performance, Style. Be concise and actionable.',
-      messages: [{ role: 'user', content: `Language: ${language}\n\n${code}` }],
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert code reviewer. Review for bugs, security issues, performance, and style. Format with sections: Bugs, Security, Performance, Style. Be concise and actionable.'
+        },
+        { role: 'user', content: `Language: ${language}\n\n${code}` }
+      ],
     }),
   });
-  const data = await response.json() as { content: { text: string }[] };
-  return data.content[0].text;
+  const data = await response.json() as { choices?: { message: { content: string } }[]; error?: { message: string } };
+  if (data.error) throw new Error(data.error.message);
+  if (!data.choices || !data.choices[0]) throw new Error('Empty response from API');
+  return data.choices[0].message.content;
 }
