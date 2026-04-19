@@ -189,7 +189,7 @@ program
     console.log(chalk.bold("\n🚀 Code Translator Pro\n"));
     console.log("  Free:  10 translations/day");
     console.log("  Pro:   Unlimited — $20/month\n");
-    console.log(chalk.cyan("  → https://codetranslator.ai/pro\n"));
+    console.log(chalk.cyan("  → https://transpiler.us/pricing\n"));
   });
 
 program

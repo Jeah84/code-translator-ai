@@ -1,6 +1,6 @@
 {
   "name": "code-translator-ai",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Translate code between any programming languages using AI",
   "main": "dist/index.js",
   "bin": {
@@ -21,7 +21,7 @@
     "convert"
   ],
   "author": "Jason Rauch",
-  "license": "MIT",
+  "license": "MIT WITH Commons-Clause",
   "devDependencies": {
     "@types/node": "^20.19.39",
     "ts-node": "^10.9.0",
